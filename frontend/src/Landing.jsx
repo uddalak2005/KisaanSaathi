@@ -17,8 +17,8 @@ export default function Landing() {
                 <div className='Contact_us' id='child'>Contact Us</div>
             </div>
             <div className='authButtons'>
-                <button className='in' onClick={() => {navigate("/SignIn")}}>Sign in</button>
-                <button className='up'>Sign up</button>
+                <button className='in' onClick={() => {navigate("/SignIn")}} style={{zIndex:'2'}}>Sign in</button>
+                <button className='up' style={{zIndex:'2'}}>Sign up</button>
             </div>
         </div>
 
