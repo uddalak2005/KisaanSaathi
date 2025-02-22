@@ -44,15 +44,18 @@ const yieldScoreController = {
                 yieldScore = new YieldScore({
                     aadharNum,
                     crops: [],
-                    score: predictedScore, // Make sure score is set
-                    location: location
+                    location: location,
+                    soil_health : predictedScore.soil_health,
+                    yield_category : predictedScore.yield_category,
+                    loan_amount : predictedScore.loan_amount
                 });
             }
 
 
             yieldScore.crops.push({
                 name: cropName,
-                land: land
+                land: land,
+                score : predictedScore.score
             });
             
             // Update score from prediction

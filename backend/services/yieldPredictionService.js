@@ -20,7 +20,7 @@ const yieldPredictionService = {
             });
             
             console.log('Flask API Response:', response.data);
-            return response.data.score;
+            return response.data;
         } catch (error) {
             console.error('Flask API Error:', error.response?.data || error.message);
             throw new Error('Failed to get prediction from AI model');
