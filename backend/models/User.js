@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const Schema = mongoose.Schema;
+
 
 const userSchema = new mongoose.Schema({
     userId: {
@@ -9,16 +11,10 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     phone: {
-        type: String,
+        type: Number,
         unique: true,
         required: true,
         trim: true,
-        validate: {
-            validator: function(v) {
-                return /^\+\d{12}$/.test(v);
-            },
-            message: props => `${props.value} is not a valid phone number!`
-        }
     },
     password: {
         type: String,
@@ -32,7 +28,8 @@ const userSchema = new mongoose.Schema({
     },
     middleName: {
         type: String,
-        trim: true
+        trim: true,
+        default: ''
     },
     lastName: {
         type: String,
@@ -42,17 +39,18 @@ const userSchema = new mongoose.Schema({
     location: {
         state: {
             type: String,
-            required: true
+            default: ''
         },
         district: {
             type: String,
-            required: true
+            default: ''
         }
     },
     yieldScore: {
         type: Number,
         min: 0,
-        max: 100
+        max: 100,
+        default: 0
     },
     loanHistory: [{
         type: Schema.Types.ObjectId,
@@ -60,14 +58,7 @@ const userSchema = new mongoose.Schema({
     }],
     aadharNum: {
         type: Number,
-        required: true,
-        unique: true,
-        validate: {
-            validator: function(v) {
-                return /^\d{12}$/.test(v.toString());
-            },
-            message: props => `${props.value} is not a valid 12-digit Aadhar number!`
-        }
+        default: null
     },
     role: {
         type: String,
@@ -82,9 +73,13 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
+// ... rest of the model code remains same
+
 userSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) return next();
-    
+    if (!this.isModified('password')) {
+        return next();
+    }
+
     try {
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
@@ -94,19 +89,29 @@ userSchema.pre('save', async function(next) {
     }
 });
 
+// Method to compare password
 userSchema.methods.matchPassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
 userSchema.methods.generateAuthToken = function() {
-    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-        expiresIn: '30d'
-    });
+    return jwt.sign(
+        { id: this._id },
+        process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+    );
 };
 
-// Indexes
-userSchema.index({ phone: 1, aadharNum: 1 });
+// Get user's full name
+userSchema.methods.getFullName = function() {
+    return `${this.firstName} ${this.middleName ? this.middleName + ' ' : ''}${this.lastName}`;
+};
+
+// Create indexes
+userSchema.index({ phone: 1 }, { unique: true });
+userSchema.index({ aadharNum: 1 }, { unique: true, sparse: true });
 userSchema.index({ "location.state": 1, "location.district": 1 });
 
 const User = mongoose.model('User', userSchema);
+
 module.exports = User;

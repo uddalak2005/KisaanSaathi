@@ -4,36 +4,80 @@ const jwt = require('jsonwebtoken');
 const authController = {
     register: async (req, res) => {
         try {
-            const { phone, password, firstName, lastName } = req.body;
+            const {
+                phone,
+                password,
+                firstName,
+                lastName,
+                middleName,
+                location,
+                aadharNum
+            } = req.query; //req.body
 
+            console.log(req.body, req.query);
+            // Check if user exists
             const userExists = await User.findOne({ phone });
             if (userExists) {
-                return res.status(400).json({ message: 'Phone number already registered' });
+                return res.status(400).json({
+                    success: false,
+                    message: 'Phone number already registered'
+                });
             }
 
+            // Validate Aadhar number
+            if (!aadharNum || !/^\d{12}$/.test(String(aadharNum))) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Invalid Aadhar number format',
+                    aadharNum: aadharNum
+                });
+            }
+
+
+            // Create user ID
             const userId = 'KS' + Date.now().toString().slice(-6);
+
+            // Create new user with all fields
             const user = new User({
                 userId,
                 phone,
                 password,
                 firstName,
                 lastName,
-                isProfileComplete: false
+                middleName,
+                location: {
+                    state: location.state,
+                    district: location.district
+                },
+                aadharNum,
+                isProfileComplete: true // Since all data is provided
             });
 
             await user.save();
-            const token = user.generateAuthToken();
+
+            // Generate token
+            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+                expiresIn: '30d'
+            });
 
             res.status(201).json({
+                success: true,
                 token,
                 user: {
                     userId: user.userId,
                     phone: user.phone,
-                    isProfileComplete: false
+                    name: `${user.firstName} ${user.middleName ? user.middleName + ' ' : ''}${user.lastName}`,
+                    location: user.location,
+                    aadharNum: user.aadharNum,
+                    isProfileComplete: true
                 }
             });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            res.status(500).json({
+                success: false,
+                message: error.message,
+                details: error.errors // MongoDB validation errors
+            });
         }
     },
 
@@ -43,56 +87,73 @@ const authController = {
 
             const user = await User.findOne({ phone });
             if (!user) {
-                return res.status(401).json({ message: 'Invalid credentials' });
+                return res.status(401).json({
+                    success: false,
+                    message: 'Invalid credentials'
+                });
             }
 
-            const isPasswordValid = await user.matchPassword(password);
-            if (!isPasswordValid) {
-                return res.status(401).json({ message: 'Invalid credentials' });
+            const isMatch = await user.matchPassword(password);
+            if (!isMatch) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Invalid credentials'
+                });
             }
 
-            const token = user.generateAuthToken();
+            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+                expiresIn: '30d'
+            });
 
             res.status(200).json({
+                success: true,
                 token,
                 user: {
                     userId: user.userId,
                     phone: user.phone,
-                    isProfileComplete: user.isProfileComplete,
-                    name: user.firstName + ' ' + user.lastName
+                    name: `${user.firstName} ${user.middleName ? user.middleName + ' ' : ''}${user.lastName}`,
+                    location: user.location,
+                    aadharNum: user.aadharNum,
+                    isProfileComplete: user.isProfileComplete
                 }
             });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            res.status(500).json({
+                success: false,
+                message: error.message
+            });
         }
     },
 
-    completeProfile: async (req, res) => {
+    // Add this to your existing authController object
+    verifyToken: async (req, res) => {
         try {
-            const { middleName, state, district, aadharNum } = req.body;
+            // User will be already attached by protect middleware
+            const user = await User.findById(req.user.id).select('-password');
 
-            const user = await User.findById(req.user.id);
             if (!user) {
-                return res.status(404).json({ message: 'User not found' });
+                return res.status(401).json({
+                    success: false,
+                    message: 'Token invalid'
+                });
             }
 
-            user.middleName = middleName;
-            user.location = { state, district };
-            user.aadharNum = aadharNum;
-            user.isProfileComplete = true;
-
-            await user.save();
-
             res.status(200).json({
-                message: 'Profile completed successfully',
+                success: true,
                 user: {
                     userId: user.userId,
-                    name: `${user.firstName} ${user.lastName}`,
-                    isProfileComplete: true
+                    phone: user.phone,
+                    name: user.getFullName(),
+                    location: user.location,
+                    aadharNum: user.aadharNum,
+                    isProfileComplete: user.isProfileComplete
                 }
             });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            res.status(401).json({
+                success: false,
+                message: 'Token verification failed'
+            });
         }
     }
 };
