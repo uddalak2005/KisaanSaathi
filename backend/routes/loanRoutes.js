@@ -1,20 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const loanController = require('../controllers/loanController');
+const { protect } = require('../middleware/auth');
 
-// Route to create a new loan
-router.post('/', loanController.createLoan);
+// Apply authentication middleware to all routes
+router.use(protect);
 
-// Route to get all loans
-router.get('/', loanController.getAllLoans);
+// Loan routes
+router.route('/')
+    .get(loanController.getAllLoans)
+    .post(loanController.createLoan);
 
-// Route to get a loan by ID
-router.get('/:id', loanController.getLoanById);
-
-// Route to update a loan
-router.put('/:id', loanController.updateLoan);
-
-// Route to delete a loan
-router.delete('/:id', loanController.deleteLoan);
+router.route('/:id')
+    .get(loanController.getLoanById)
+    .put(loanController.updateLoan)
+    .delete(loanController.deleteLoan);
 
 module.exports = router;

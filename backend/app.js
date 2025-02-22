@@ -1,21 +1,22 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const authRoutes = require('./routes/authRoutes');
+const cors = require('cors');
 const loanRoutes = require('./routes/loanRoutes');
-const transactionRoutes = require('./routes/transactionRoutes');
-const { connectDB } = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
-// Connect to MongoDB
-connectDB();
-
 // Middleware
+app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/auth', authRoutes);
 app.use('/api/loans', loanRoutes);
-app.use('/api/transactions', transactionRoutes);
+app.use('/api/auth', authRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Something went wrong!' });
+});
 
 module.exports = app;
