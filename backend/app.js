@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const loanRoutes = require('./routes/loanRoutes');
 const authRoutes = require('./routes/authRoutes');
+const yieldScoreRoutes = require('./routes/yieldScoreRoutes');
 
 const app = express();
 
@@ -12,6 +13,9 @@ app.use(express.json());
 // Routes
 app.use('/api/loans', loanRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/loans', loanRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/yield-score', yieldScoreRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -39,27 +39,28 @@ const userSchema = new mongoose.Schema({
     location: {
         state: {
             type: String,
-            default: ''
+            required: true  // Changed to required
         },
         district: {
             type: String,
-            default: ''
+            required: true  // Changed to required
         }
     },
-    yieldScore: {
+    aadharNum: {
         type: Number,
-        min: 0,
-        max: 100,
-        default: 0
+        required: true,   // Changed to required
+        unique: true,
+        validate: {
+            validator: function(v) {
+                return /^\d{12}$/.test(v.toString());
+            },
+            message: props => `${props.value} is not a valid 12-digit Aadhar number!`
+        }
     },
     loanHistory: [{
         type: Schema.Types.ObjectId,
         ref: 'Loan'
     }],
-    aadharNum: {
-        type: Number,
-        default: null
-    },
     role: {
         type: String,
         enum: ['farmer', 'admin'],
