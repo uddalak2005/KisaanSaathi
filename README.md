@@ -91,3 +91,181 @@ POST /api/transactions         - Record new transaction
 GET  /api/transactions/:loanId - Get loan transactionss
 
 ```
+
+# Kisaan Saathi
+
+...existing content...
+
+## API Documentation
+
+### Authentication Routes
+Base URL: `/api/auth`
+
+#### 1. Register New User
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+Request Body:
+{
+    "phone": "+919876543210",    // Required, 12 digits with country code
+    "password": "password123",    // Required, min 6 characters
+    "firstName": "Ram",          // Required
+    "lastName": "Singh"          // Required
+}
+
+Response (201):
+{
+    "token": "jwt_token_here",
+    "user": {
+        "userId": "KS000001",
+        "phone": "+919876543210",
+        "isProfileComplete": false
+    }
+    
+}
+```
+
+#### 2. Login
+
+```
+POST /api/auth/login
+Content-Type: application/json
+
+Request Body:
+{
+    "phone": "+919876543210",
+    "password": "password123"
+}
+
+Response (200):
+{
+    "token": "jwt_token_here",
+    "user": {
+        "userId": "KS000001",
+        "phone": "+919876543210",
+        "isProfileComplete": true,
+        "name": "Ram Singh"
+    }
+}
+
+```
+
+#### 3. Complete Profile
+
+```
+
+POST /api/auth/complete-profile
+Authorization: Bearer <token>
+Content-Type: application/json
+
+Request Body:
+{
+    "middleName": "Kumar",           // Optional
+    "state": "Uttar Pradesh",        // Required
+    "district": "Lucknow",           // Required
+    "aadharNum": 123456789012        // Required, 12 digits
+}
+
+Response (200):
+{
+    "message": "Profile completed successfully",
+    "user": {
+        "userId": "KS000001",
+        "name": "Ram Kumar Singh",
+        "isProfileComplete": true
+    }
+}
+
+```
+### Loan Routes
+Base URL : ```/api/loans```
+
+#### 1. Create Loan Application
+
+POST /api/loans
+Authorization: Bearer <token>
+Content-Type: application/json
+
+Request Body:
+{
+    "amount": 50000,           // Required
+    "interestRate": 12,        // Required
+    "duration": 12,            // Required, in months
+    "borrowerId": "user_id"    // Required
+}
+
+Response (201):
+{
+    "_id": "loan_id",
+    "amount": 50000,
+    "interestRate": 12,
+    "duration": 12,
+    "status": "pending"
+}
+
+#### 2. Get All Loans
+
+GET /api/loans
+Authorization: Bearer <token>
+
+Response (200):
+[
+    {
+        "_id": "loan_id",
+        "amount": 50000,
+        "status": "pending",
+        "createdAt": "2024-02-22T..."
+    }
+]
+
+### Transaction Routes
+Base URL : ```/api/transactions```
+
+#### 1. Create Transaction
+
+POST /api/transactions
+Authorization: Bearer <token>
+Content-Type: application/json
+
+Request Body:
+{
+    "loanId": "loan_id",
+    "amount": 4500
+}
+
+Response (201):
+{
+    "_id": "transaction_id",
+    "loanId": "loan_id",
+    "amount": 4500,
+    "status": "pending",
+    "date": "2024-02-22T..."
+}
+
+### Yield Score
+Base URL: ```/api/yield-score
+
+#### 1. Get Yield Routes
+POST /api/yield-score
+Authorization: Bearer <token>
+Content-Type: application/json
+
+Request Body:
+{
+    "location": {
+        "state": "Uttar Pradesh",
+        "district": "Lucknow"
+    },
+    "cropType": "Wheat"
+}
+
+Response (200):
+{
+    "score": 85,
+    "location": {
+        "state": "Uttar Pradesh",
+        "district": "Lucknow"
+    },
+    "cropType": "Wheat"
+}
