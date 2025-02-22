@@ -2,8 +2,14 @@ const mongoose = require('mongoose');
 
 const yieldScoreSchema = new mongoose.Schema({
     location: {
-        type: String,
-        required: true
+        state: {
+            type: String,
+            required: true
+        },
+        district : {
+            type : String,
+            required : true
+        }
     },
     cropType: {
         type: String,
