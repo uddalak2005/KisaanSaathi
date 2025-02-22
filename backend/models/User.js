@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const Schema = mongoose.Schema;
+
 
 const userSchema = new mongoose.Schema({
     userId: {
@@ -8,10 +11,15 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     phone: {
-        type: String,
+        type: Number,
         unique: true,
         required: true,
-        trim: true
+        trim: true,
+    },
+    password: {
+        type: String,
+        required: true,
+        minlength: 6
     },
     firstName: {
         type: String,
@@ -20,7 +28,8 @@ const userSchema = new mongoose.Schema({
     },
     middleName: {
         type: String,
-        trim: true
+        trim: true,
+        default: ''
     },
     lastName: {
         type: String,
@@ -30,25 +39,16 @@ const userSchema = new mongoose.Schema({
     location: {
         state: {
             type: String,
-            required: true
+            required: true  // Changed to required
         },
-        district : {
-            type : String,
-            required : true
+        district: {
+            type: String,
+            required: true  // Changed to required
         }
     },
-    yieldScore: {
-        type: Number,
-        min: 0,
-        max: 100
-    },
-    loanHistory: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Loan'
-    }],
     aadharNum: {
         type: Number,
-        required: true,
+        required: true,   // Changed to required
         unique: true,
         validate: {
             validator: function(v) {
@@ -57,24 +57,57 @@ const userSchema = new mongoose.Schema({
             message: props => `${props.value} is not a valid 12-digit Aadhar number!`
         }
     },
-    role: {
-        type: String,
-        enum: ['farmer', 'admin'],
-        default: 'farmer'
-    },
+    loanHistory: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Loan'
+    }],
     isProfileComplete: {
         type: Boolean,
         default: false
     }
-}, { 
-    timestamps: true 
+}, {
+    timestamps: true
 });
 
-// Index for location-based queries
-userSchema.index({ "location.coordinates": "2dsphere" });
+// ... rest of the model code remains same
 
-// Create a compound index for efficient queries
-userSchema.index({ phone: 1, aadharNum: 1 });
+userSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) {
+        return next();
+    }
+
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Method to compare password
+userSchema.methods.matchPassword = async function(enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+};
+
+userSchema.methods.generateAuthToken = function() {
+    return jwt.sign(
+        { id: this._id },
+        process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+    );
+};
+
+// Get user's full name
+userSchema.methods.getFullName = function() {
+    return `${this.firstName} ${this.middleName ? this.middleName + ' ' : ''}${this.lastName}`;
+};
+
+// Create indexes
+userSchema.index({ phone: 1 }, { unique: true });
+userSchema.index({ aadharNum: 1 }, { unique: true, sparse: true });
+userSchema.index({ "location.state": 1, "location.district": 1 });
 
 const User = mongoose.model('User', userSchema);
+
 module.exports = User;

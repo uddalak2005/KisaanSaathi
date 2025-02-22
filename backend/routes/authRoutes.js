@@ -1,11 +1,11 @@
 const express = require('express');
-const { register, login } = require('../controllers/authController');
 const router = express.Router();
+const { register, login, verifyToken } = require('../controllers/authController');
+const { protect } = require('../middleware/auth');
 
-// Route for user registration
-router.post('/register', register);
-
-// Route for user login
+// Public routes
+router.post('/register', register);  // This should match your API endpoint
 router.post('/login', login);
+router.get('/verify-token', protect, verifyToken);
 
 module.exports = router;
