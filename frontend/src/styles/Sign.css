@@ -1,0 +1,210 @@
+.login_main{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: black;
+
+}
+.info{
+    position: absolute;
+    width: 70%;
+    height: 100%;
+    background: linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.3),rgba(0,0,0,0.3)),url('../assets/New folder/farmers-tending-crops-stockcake.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+.info h1{
+    position: absolute;
+    top: 25%;
+    left: 7%;
+    width: 70%;    
+    color: rgba(201, 255, 203, 1);
+    font-weight: 600;
+    font-size: 4rem;
+    text-align: left;
+}
+.login-container{
+    position: absolute;
+    height: 100%;
+    width: 30%;
+    right: 0;
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+.logo-login{
+    position: absolute;
+    top: 17%;
+    height: 20%;
+    width: 30%;
+    background-image: url('../assets/WhatsApp Image 2025-02-22 at 1.28.10 PM.jpeg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    
+
+}
+.singin-h1{
+    position: absolute;
+    top: 40%;
+    color: rgba(0, 143, 7, 1);
+    font-size: 2rem;
+
+}
+.phone{
+    position: absolute;
+    top: 50%;
+    width: 60%;
+    padding: 3%;
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+}
+.otp{
+    position: absolute;
+    top: 60%;
+    width: 60%;
+    padding: 3%;
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+}
+.login{
+    position: absolute;
+    padding: 3%;
+    width: 25%;
+    border-radius: 10px;
+    top: 70%;
+    background-color: rgba(224, 224, 224, 1);
+    border: none;
+    color: white;
+    font-weight: 600;
+}
+.login:hover{
+    background-color: rgba(0, 143, 7, 1);
+    color: white;
+}
+.new{
+    position: absolute;
+    padding: 3%;
+    width: 50%;
+    top: 80%;
+    border: 2px solid rgba(0, 143, 7, 1);
+    border-radius: 15px;
+    background-color: rgba(0,0,0,0);
+    color: rgba(0, 143, 7, 1);
+    font-weight: 600;
+}
+.new:hover{
+    background-color: rgba(0, 143, 7, 1);
+    color: white;
+}
+
+/* Signup */
+
+.phone_signup{
+    position: absolute;
+    top: 50%;
+    width: 60%;
+    padding: 3%;
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+}
+.signup-h1
+{
+    color: rgba(0, 143, 7, 1);
+    position: absolute;
+    top: 25%;
+    font-size: 2rem;
+
+}
+.logo-login_signup{
+    position: absolute;
+    top: 8%;
+    height: 20%;
+    width: 30%;
+    background-image: url('../assets/WhatsApp Image 2025-02-22 at 1.28.10 PM.jpeg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    
+}
+.firstname{
+    position: absolute;
+    top: 32%;
+    width: 60%;
+    padding: 3%;
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+}
+.lastname{
+    position: absolute;
+    top: 40%;
+    width: 60%;
+    padding: 3%;
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+}
+.otp_signup{
+    position: absolute;
+    top: 48%;
+    width: 60%;
+    padding: 3%;
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+}
+.signup{
+    position: absolute;
+    padding: 3%;
+    width: 50%;
+    top: 82%;
+    border: 2px solid rgba(0, 143, 7, 1);
+    border-radius: 15px;
+    background-color: rgba(0,0,0,0);
+    color: rgba(0, 143, 7, 1);
+    font-weight: 600;
+}
+.phone_signup{
+    position: absolute;
+    top: 56%;
+    width: 60%;
+    padding: 3%;
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+}
+.signup:hover{
+    background-color: rgba(0, 143, 7, 1);
+    color: white;
+}
+.flush-text{
+    position: absolute;
+    top: 30%;
+    width: 70%;
+    left: 10%;
+    color: rgba(224, 224, 224, 1);
+    font-weight: 600;
+}
+.state{
+    position: absolute;
+    width: 30%;
+    top: 64%;
+    left: 17%;
+    padding: 3%;
+    border-radius: 10px;
+}
+.district{
+    position: absolute;
+    width: 30%;
+    top: 64%;
+    right: 17%;
+    padding: 3%;
+    border-radius: 10px;
+}
+.aadhar{
+    position: absolute;
+    top: 72%;
+    width: 60%;
+    padding: 3%;
+    border-radius: 10px;
+    border: 1px solid rgb(0, 0, 0);
+
+}
