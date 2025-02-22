@@ -3,9 +3,21 @@ const cors = require('cors');
 const loanRoutes = require('./routes/loanRoutes');
 const authRoutes = require('./routes/authRoutes');
 const yieldScoreRoutes = require('./routes/yieldScoreRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
+
+app.use((req, res, next) => {
+    console.log('Request received:', {
+        method: req.method,
+        path: req.path,
+        body: req.body,
+        query: req.query,
+        headers: req.headers
+    });
+    next();
+});
 
 
 // CORS Configuration
@@ -24,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/loans', loanRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/yield-score', yieldScoreRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -31,15 +44,6 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Something went wrong!' });
 });
 
-app.use((req, res, next) => {
-    console.log('Request received:', {
-        method: req.method,
-        path: req.path,
-        body: req.body,
-        query: req.query,
-        headers: req.headers
-    });
-    next();
-});
+
 
 module.exports = app;
