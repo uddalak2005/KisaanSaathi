@@ -3,12 +3,18 @@ import './styles/Sign.css'
 import { useState } from 'react';
 import { useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 export default function SignIn() {
 
   const [formData, setFormData] = useState({
     phone: '',
     password: '' // this will store the OTP
   });
+
+  const navigate = useNavigate();
+  const [aadharNum,setaadharNum] = useState();
+  const [token,settoken] = useState();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -67,7 +73,19 @@ export default function SignIn() {
       if(res.status === 200 || 201){
         var token = res.data.token;
         localStorage.setItem('token',token);
+        settoken(token);
         console.log(token);
+        console.log(res.data.user.aadharNum)
+        setaadharNum(res.data.user.aadharNum);
+      }
+
+      if(res.data.user.aadharNum){
+        toast.success("Log in succesfull!");
+        setTimeout(() => {
+          console.log("This runs after 1 second.");
+      }, 1500);
+      
+        navigate(`/Dashboard/${aadharNum}`);
       }
 
     })
@@ -75,6 +93,16 @@ export default function SignIn() {
   catch(e){
     console.log(e);
   }}
+
+  useEffect(()=>{
+    axios.get(`/api/dashboard/${aadharNum}`).then((res)=>{
+      if(res.status === 200 || res.status === 201){
+        console.log(res.data);
+      }
+    })
+  },[aadharNum])
+
+
 
   return (
     <div className='login_main'>
