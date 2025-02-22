@@ -12,6 +12,10 @@ const yieldScoreSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        land : {
+            type: Number,
+            required: true
+        },
     }],
     score: {
         type: Number,

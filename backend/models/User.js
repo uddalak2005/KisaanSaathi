@@ -61,11 +61,6 @@ const userSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'Loan'
     }],
-    role: {
-        type: String,
-        enum: ['farmer', 'admin'],
-        default: 'farmer'
-    },
     isProfileComplete: {
         type: Boolean,
         default: false

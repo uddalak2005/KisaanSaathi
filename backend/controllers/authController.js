@@ -12,11 +12,22 @@ const authController = {
                 middleName,
                 location,
                 aadharNum
-            } = req.query; //req.body
+            } = req.body; //req.body
 
-            console.log(req.body, req.query);
+            console.log('1. Received Data:', { 
+                phone, firstName, lastName, location, aadharNum 
+            });
             // Check if user exists
             const userExists = await User.findOne({ phone });
+
+            console.log('1. Request type:', req.method);
+            console.log('1a. Content-Type:', req.headers['content-type']);
+            console.log('1b. Received Data:', { 
+                phone, firstName, lastName, location, aadharNum 
+            });
+
+
+
             if (userExists) {
                 return res.status(400).json({
                     success: false,
@@ -36,6 +47,7 @@ const authController = {
 
             // Create user ID
             const userId = 'KS' + Date.now().toString().slice(-6);
+            console.log('4. Generated UserId:', userId);
 
             // Create new user with all fields
             const user = new User({
@@ -53,12 +65,18 @@ const authController = {
                 isProfileComplete: true // Since all data is provided
             });
 
-            await user.save();
+            console.log('5. Created User Object:', user);
+
+            const savedUser = await user.save();
+
+            console.log('6. Saved User:', savedUser);
 
             // Generate token
             const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
                 expiresIn: '30d'
             });
+
+            console.log('7. Generated Token:', token ? 'Token generated' : 'Token generation failed');
 
             res.status(201).json({
                 success: true,

@@ -1,11 +1,11 @@
 const axios = require('axios');
 
-const FLASK_API_URL = process.env.FLASK_API_URL || 'http://localhost:5000/predict';
+const FLASK_API_URL = process.env.FLASK_API_URL || 'http://localhost:5000/api/predict';
 
 const yieldPredictionService = {
     predictYieldScore: async (cropName, location) => {
         try {
-            const response = await axios.post(FLASK_API_URL, {
+            const response = await axios.get(FLASK_API_URL, {
                 crop: cropName,
                 location: location
             });
