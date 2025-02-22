@@ -2,55 +2,85 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-// Register a new user
-exports.register = async (req, res) => {
-    const { username, password } = req.body;
-
+exports.registerInitial = async (req, res) => {
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, password: hashedPassword });
+        const { phone } = req.body;
+
+        // Check if user already exists
+        const userExists = await User.findOne({ phone });
+        if (userExists) {
+            return res.status(400).json({ 
+                message: 'User already exists',
+                isProfileComplete: userExists.isProfileComplete
+            });
+        }
+
+        // Create user with minimal info
+        const userId = 'KS' + Date.now().toString().slice(-6);
+        const newUser = new User({
+            userId,
+            phone,
+            isProfileComplete: false
+        });
+
         await newUser.save();
-        res.status(201).json({ message: 'User registered successfully' });
+        
+        // Generate token
+        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { 
+            expiresIn: '30d' 
+        });
+
+        res.status(201).json({
+            token,
+            userId: newUser.userId,
+            isProfileComplete: false
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error registering user', error });
+        res.status(500).json({ message: error.message });
     }
 };
 
-// Login a user
-exports.login = async (req, res) => {
-    const { username, password } = req.body;
-
+exports.completeProfile = async (req, res) => {
     try {
-        const user = await User.findOne({ username });
+        const { 
+            firstName, 
+            middleName, 
+            lastName, 
+            state, 
+            coordinates, 
+            aadharNum 
+        } = req.body;
+
+        const user = await User.findById(req.user._id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
+        // Update user profile
+        user.firstName = firstName;
+        user.middleName = middleName;
+        user.lastName = lastName;
+        user.location = {
+            state,
+            coordinates: {
+                type: 'Point',
+                coordinates
+            }
+        };
+        user.aadharNum = aadharNum;
+        user.isProfileComplete = true;
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ token });
+        await user.save();
+
+        res.status(200).json({
+            message: 'Profile completed successfully',
+            user: {
+                userId: user.userId,
+                isProfileComplete: true,
+                name: `${user.firstName} ${user.lastName}`
+            }
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error logging in', error });
+        res.status(500).json({ message: error.message });
     }
-};
-
-// Middleware to authenticate user
-exports.authenticate = (req, res, next) => {
-    const token = req.headers['authorization'];
-
-    if (!token) {
-        return res.status(403).json({ message: 'No token provided' });
-    }
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
-        req.userId = decoded.id;
-        next();
-    });
 };

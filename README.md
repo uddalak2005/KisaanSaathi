@@ -73,3 +73,19 @@ Contributions are welcome! Please open an issue or submit a pull request.
 ## License
 
 This project is licensed under the MIT License.
+
+## API Routes
+
+Authentication:
+POST /api/auth/register         - Register new user
+POST /api/auth/complete-profile - Complete user profile
+
+Loans:
+GET  /api/loans                 - Get all loans
+POST /api/loans                 - Create new loan
+GET  /api/loans/:id            - Get specific loan
+PUT  /api/loans/:id            - Update loan status
+
+Transactions:
+POST /api/transactions         - Record new transaction
+GET  /api/transactions/:loanId - Get loan transactionss
