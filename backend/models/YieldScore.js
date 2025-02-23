@@ -16,13 +16,31 @@ const yieldScoreSchema = new mongoose.Schema({
             type: Number,
             required: true
         },
+        score: {
+            type: Number,
+            required: true,
+            min: 0,
+            max: 100
+        },
+        predicted_yield : {
+            type: Number,
+            required: true
+        }
     }],
-    score: {
-        type: Number,
-        required: true,
-        min: 0,
-        max: 100
+    soil_health: {
+        type: String,
+        required: true
     },
+    yield_category: {
+        type: String,
+        required: true
+    },
+
+    loan_amount: {
+        type: Number,
+        required: true
+    },
+    
     location: {
         state: String,
         district: String

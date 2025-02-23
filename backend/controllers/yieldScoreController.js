@@ -2,13 +2,24 @@ const User = require('../models/User');
 const YieldScore = require('../models/YieldScore');
 const yieldPredictionService = require('../services/yieldPredictionService');
 
+
 const yieldScoreController = {
     predictAndSaveScore: async (req, res) => {
         try {
-            const { cropName } = req.body;
-            const aadharNum = req.user.aadharNum; // Get from authenticated user
+            const { cropName, location, land } = req.body;
+            const aadharNum = req.user.aadharNum;
 
-            // Get user's location
+            console.log(cropName, location, land, aadharNum);   
+
+            // Input validation
+            if (!cropName || !location || !land) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Please provide all required fields: cropName, location, and land'
+                });
+            }
+
+            // Get user for verification
             const user = await User.findOne({ aadharNum });
             if (!user) {
                 return res.status(404).json({
@@ -17,11 +28,15 @@ const yieldScoreController = {
                 });
             }
 
-            // Get prediction from AI model
-            const predictedScore = await yieldPredictionService.predictYieldScore(
+            // Send data to Flask API and get prediction
+
+            const predictedScore = await yieldPredictionService.predictYieldScore({
                 cropName,
-                user.location
-            );
+                location,
+                land
+            });
+
+            console.log('Predicted Score:', predictedScore);
 
             // Find or create yield score document
             let yieldScore = await YieldScore.findOne({ aadharNum });
@@ -29,26 +44,37 @@ const yieldScoreController = {
                 yieldScore = new YieldScore({
                     aadharNum,
                     crops: [],
-                    score: predictedScore,
-                    location: user.location
+                    location: location,
+                    soil_health : predictedScore.soil_health,
+                    yield_category : predictedScore.yield_category,
+                    loan_amount : predictedScore.loan_amount
                 });
             }
 
-            // Add new crop
-            yieldScore.crops.push({ name: cropName });
-            yieldScore.score = predictedScore; // Update score
+
+            yieldScore.crops.push({
+                name: cropName,
+                land: land,
+                score : predictedScore.score
+            });
             
-            await yieldScore.save();
+            // Update score from prediction
+            yieldScore.score = predictedScore;
+
+            const savedScore = await yieldScore.save();
 
             res.status(200).json({
                 success: true,
                 data: {
-                    cropName,
-                    score: predictedScore,
-                    location: user.location
+                    score : predictedScore,
+                    _id: savedScore._id,
+                    aadharNum: savedScore.aadharNum,
+                    crops: savedScore.crops
                 }
             });
+            
         } catch (error) {
+            console.error('Controller Error:', error);
             res.status(500).json({
                 success: false,
                 message: error.message
@@ -58,9 +84,9 @@ const yieldScoreController = {
 
     getUserYieldScore: async (req, res) => {
         try {
-            const aadharNum = req.user.aadharNum;
-            
+            const { aadharNum } = req.user;
             const yieldScore = await YieldScore.findOne({ aadharNum });
+            
             if (!yieldScore) {
                 return res.status(404).json({
                     success: false,

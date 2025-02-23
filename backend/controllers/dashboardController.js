@@ -8,7 +8,7 @@ const dashboardController = {
         try {
             const { aadharNum } = req.params;
 
-            console.log(`dashboard requested for ${aadharNum}}`)
+            console.log(`dashboard requested for ${aadharNum}`)
             // Get user data
             const user = await User.findOne({ aadharNum })
                 .select('-password');
