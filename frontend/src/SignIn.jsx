@@ -77,14 +77,13 @@ export default function SignIn() {
         console.log(token);
         console.log(res.data.user.aadharNum)
         setaadharNum(res.data.user.aadharNum);
-      }
-
-      if(res.data.user.aadharNum){
+        localStorage.setItem('aadharNumber', JSON.stringify(res.data.user.aadharNum));
         toast.success("Log in succesfull!");
+        
         setTimeout(() => {
           console.log("This runs after 1 second.");
       }, 1500);
-      
+
         navigate(`/Dashboard/${aadharNum}`);
       }
 
@@ -93,14 +92,6 @@ export default function SignIn() {
   catch(e){
     console.log(e);
   }}
-
-  useEffect(()=>{
-    axios.get(`/api/dashboard/${aadharNum}`).then((res)=>{
-      if(res.status === 200 || res.status === 201){
-        console.log(res.data);
-      }
-    })
-  },[aadharNum])
 
 
 

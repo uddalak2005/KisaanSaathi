@@ -3,10 +3,16 @@ import { motion } from 'framer-motion';
 import './styles/Dash.css'
 import { useState } from 'react';
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import 'boxicons'
 import axios from "axios";
+import { Line } from 'react-chartjs-2';
+import gif from './assets/output-onlinegiftools.gif'
+
+import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
+
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
 
 export default function Dashboard() {
@@ -17,7 +23,14 @@ export default function Dashboard() {
     const [weatherData,setweatherData] = useState([]);
     const [day,setday] = useState();
     const [userDat,setuserDat] = useState();
-    const { aadharNum } = useParams();
+    const [Area,setArea] = useState();
+    const [selectedCrop, setSelectedCrop] = useState("WHEAT");
+    const [yieldData,setYieldData] = useState();
+    const [graphData,setgraphData] = useState();
+    const [data1,setdata1] = useState();
+    const [data2,setdata2] = useState();
+
+    const navigate = useNavigate();
 
     const crops = [
         "RICE", "WHEAT", "KHARIF SORGHUM", "RABI SORGHUM", "SORGHUM", 
@@ -27,16 +40,23 @@ export default function Dashboard() {
         "SUGARCANE", "COTTON"
     ];
 
-    const [selectedCrop, setSelectedCrop] = useState("");
-    const [area,setarea] = useState();
+    const dataMetrics = [
+        { metric: "Revenue", value: "$50,000" },
+        { metric: "Users", value: "1,200" },
+        { metric: "Growth Rate", value: "15%" },
+        { metric: "Retention", value: "80%" },
+        { metric: "Active Sessions", value: "5,400" }
+      ];
+
+   
     
 // Example Output: "Saturday" (if today is Saturday)
-//     useEffect(()=>{
-//         axios.get("https://newsdata.io/api/1/news?apikey=pub_71393425f2eb107bc20c5e467f4599218c164&q=Agriculture&country=in").then((response)=>{
-//             setnewsData(response.data.results);
-//             console.log(response.data);}
-//         )
-// },[]);
+    useEffect(()=>{
+        axios.get("https://newsdata.io/api/1/news?apikey=pub_71393425f2eb107bc20c5e467f4599218c164&q=Agriculture&country=in").then((response)=>{
+            setnewsData(response.data.results);
+            console.log(response.data);}
+        )
+},[]);
 
     useEffect(()=>{
 
@@ -56,20 +76,95 @@ export default function Dashboard() {
     console.log(dayName);  
 },[])
 
-const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("Selected Crop:", selectedCrop);
-};
+const handleSubmit = async () => {
+    try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.error("No token found in localStorage.");
+                    return;
+                }
+        
+                if (!userDat?.dashboardData?.user?.location) {
+                    console.error("User location is missing or user data is not loaded.");
+                    return;
+                }
+        
+                const parsedArea = parseFloat(Area);
+                if (isNaN(parsedArea) || parsedArea <= 0) {
+                    console.error("Invalid area input. Must be a positive number.");
+                    return;
+                }
+        
+                const response = await axios.post(
+                    'http://192.168.190.12:3000/api/yield-score/predict',
+                    {
+                        cropName: selectedCrop,
+                        location: userDat.dashboardData.user.location,
+                        land: parsedArea
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+        
+                if (response.data.success) {
+                    console.log('Yield Score:', response.data.data.savedScore.crops[0].score);
+                    console.log(response.data.data);
+                    setYieldData(response.data.data.savedScore.crops);
+                }
+            } catch (error) {
+                console.error('Error predicting yield score:', error.response?.data || error);
+            }
+        };
+        
+        useEffect(()=>{
+            try{
+                axios.get("http://192.168.190.128:5000/api/map",{
+                    params :
+                    {crop:selectedCrop,
+                    district:userDat.dashboardData.user.location.district,
+                    land:1
+                }
+                }).then((res) => {
+                    setgraphData(res.data);
+                    console.log(res.data);
+                })
+            }
+            catch(e){
+                console.log(e);
+            }
+        },[userDat])
+
+        useEffect(()=>{
+            const best_crop = [];
+            const ts_data = [];
+            for(var i=0;i<30;i++){
+                const d = graphData ? graphData.best_crop_data[i].Yield : null;
+                best_crop.push(d);
+                const f = graphData ? graphData.ts_data[i].Yield : null;
+                ts_data.push(f);
+}
+        setdata1(best_crop);
+        setdata2(ts_data);
+
+        console.log(ts_data);
+        },[graphData])
+
 useEffect(()=>{
     try{
+        const aadharNumber = JSON.parse(localStorage.getItem('aadharNumber'));
+        console.log(aadharNumber);
         const token = localStorage.getItem('token')
-    axios.get(`api/dashboard/${aadharNum}`,{
+    axios.get(`http://192.168.190.12:3000/api/dashboard/${aadharNumber}`,{
         headers:{
             Authorization: `Bearer ${token}`
         }
     }).then((res)=>{
         if(res.status===200 || res.status === 201){
-            console.log(res.data);
+            console.log("UserData:" , res.data);
             setuserDat(res.data);
         }
     })
@@ -77,6 +172,64 @@ useEffect(()=>{
     console.log(e);
 }
 },[])
+
+
+
+const data = {
+    labels : [
+        "1988", "1989", "1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997",
+        "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007",
+        "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"
+      ],
+    datasets: [
+        {
+            label: 'Dataset 1',
+            data: data1 ? data1 : [] , // First line data
+            borderColor: 'blue',
+            backgroundColor: 'rgba(0, 0, 255, 0.2)',
+            tension: 0.4
+        },
+        {
+            label: 'Dataset 2',
+            data: data2 ? data2 : [], // Second line data
+            borderColor: 'red',
+            backgroundColor: 'rgba(255, 0, 0, 0.2)',
+            tension: 0.4
+        }
+    ]
+};
+
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            }
+        },
+        scales: {
+            x: {
+                grid: {
+                    display: false
+                }
+            },
+            y: {
+                beginAtZero: true,
+                grid: {
+                    display: true
+                }
+            }
+        }
+    };
+
+if(!graphData){
+    return(
+        <div className='load-div' style={{position:'absolute',display:'flex',alignItems:'center',justifyItems:'center',width:'100%',height:'100%',backgroundColor:'black'}}>
+            <img src={gif} style={{filter:'invert(1)',position:'absolute',left:'25%'}}></img>
+        </div>
+    )
+}
+
 
     return (
         <div className='dash-page'>
@@ -88,6 +241,8 @@ useEffect(()=>{
             <div className='logo-dash'>
                 KisaanSathi
             </div>
+            <div className='pfp'>{userDat ? userDat.dashboardData ? userDat.dashboardData.user.name[0] : "" : ""}</div>
+            <div className='username'>{userDat ? userDat.dashboardData ? userDat.dashboardData.user.name : "" : ""}</div>
         </motion.div>
             <motion.div 
                 className={expanded ? 'dashboard-exp' : 'dashboard'}
@@ -124,7 +279,7 @@ useEffect(()=>{
                 
                     <p className='head'>Weather today</p>
                     <p className='date'>{day? day:""}</p>
-                    <p className='date-tdy'>(22.02.2025)</p>
+                    <p className='date-tdy'>{weatherData.current ? "(" + weatherData.current.last_updated.substring(0,10) + ")" : ""}</p>
                     <div className='sun'>
                     <box-icon name='sun' type='solid' size='80px' color='#ffc300' ></box-icon>
                     </div>
@@ -133,6 +288,7 @@ useEffect(()=>{
                 </div>
                 <div className='forecast'>
                 <p className='msg'>Weather forecast</p>
+                <p className='fore-day'>(Monday)</p>
                 <p className='temp2'>{weatherData.forecast? weatherData.forecast.forecastday[0].day.avgtemp_c + " C":""}</p>
                 <p className='pos'>{weatherData.forecast? weatherData.forecast.forecastday[0].day.condition.text:""}</p>
                 <div className='forecast-data'>
@@ -158,10 +314,7 @@ useEffect(()=>{
                         <p className='news-head'>{newsData[index].title}</p>
                         <Link to={newsData[index].link}><div className='link'>Link</div></Link>
                     </div>)) : ""}
-                    {/* <div className='news2'>
-                    <div className='data1'></div>
-                    <p className='news-head'>News heading</p>
-                    </div> */}
+                    
                 </div>
                 <div className='crop-data'>
                         <h1 className='cropdata-h1'>Add crop</h1>
@@ -169,30 +322,82 @@ useEffect(()=>{
                 <div className='crop-sel'>
                 
                 <div className='form-crop'>
-                        <select className='cropSelection' onChange={(e)=>setSelectedCrop(e.target.value)}>
+                        <select className='cropSelection' value={selectedCrop}  onChange={(e)=>setSelectedCrop(e.target.value)}>
                         <option value="" disabled>Select a Crop</option>
                 {crops.map((crop, index) => (
                     <option key={index} value={crop}>{crop}</option>
                 ))}
                         </select>
-                        <input type='text' className='areaTake' placeholder='Enter field area(hector)'></input>
-                        <button className='submit-crop-form'>Submit</button>
+                        <input type='text' className='areaTake' placeholder='Enter field area(hector)' onChange={(e) => setArea(e.target.value)}></input>
+                        <button className='submit-crop-form' onClick={handleSubmit}>Submit</button>
                         </div>
                 </div>
-                <div className='score-graph'>
-                    <h1 className='climate-score' style={{color:'green',position:'absolute',fontSize:'5rem',left:'22%',top:'20%'}}>87</h1>
+                <div className='score-graph' style={{overflowY:'scroll'}}>
+                {userDat ? userDat.dashboardData ? userDat.dashboardData.yieldScore.yieldScore.crops.map((item,index) => (
+                    <div className='add_scores' key={item.name}>
+                    <h1 className='crop_name_for_score'>{item.name} :</h1>
+                    <h1 className='climate-score' style={{color:'green',position:'absolute',fontSize:'1rem',right:'10%'}}>{item.score}</h1>
+                    </div>)): "" : ""}
+            
                 </div>
 
                 </div>
             </motion.div>
             
-            <motion.div className='dash-sub'>
-            <button className='crop-sel-dash'>Quick Access Loans</button>
+            <motion.div className='dash-sub'
+            initial={{opacity:0}}
+            animate={{opacity:1}}
+            transition={{delay:0.6,duration:0.5}}>
+            <button className='crop-sel-dash' onClick={() => navigate("/Finance")}>Quick Access Loans</button>
                 <div className='sub1'>
-                    <h1 className='week-up'>Upcoming Week</h1>
+                    <h1 className='week-up'>Yield Report</h1>
+                    <h1 className='notif-sec'>Notifications</h1>
+                    <div className='sub1-1'>
+                    <table style={{ borderCollapse: "collapse", width: "80%", textAlign: "left", border: "1px solid gray",position:'absolute',top:'5%' }}>
+        <thead>
+          <tr style={{ backgroundColor: "#E5E7EB" }}>
+            <th style={{ border: "1px solid gray", padding: "10px" }}>Metric</th>
+            <th style={{ border: "1px solid gray", padding: "10px" }}>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr style={{ backgroundColor: "white" }}>
+              <td style={{ border: "1px solid gray", padding: "10px" }}>Loan amount</td>
+              <td style={{ border: "1px solid gray", padding: "10px" }}>{userDat ? userDat.dashboardData.yieldScore.yieldScore.loan_amount : ""}</td>
+              </tr>
+              <tr style={{ backgroundColor: "white" }}>
+              <td style={{ border: "1px solid gray", padding: "10px" }}>yield category</td>
+              <td style={{ border: "1px solid gray", padding: "10px" }}>{userDat ? userDat.dashboardData.yieldScore.yieldScore.yield_category : ""}</td>
+              </tr>
+              <tr style={{ backgroundColor: "white" }}>
+              <td style={{ border: "1px solid gray", padding: "10px" }}>Best crops</td>
+              <td>
+              {userDat ? userDat.dashboardData.yieldScore.yieldScore.best_crop.map((item, index) => (
+  <>
+    <tr key={`main-${index}`}>
+      <td style={{ border: "1px solid gray", padding: "3.1px",paddingRight:'3.2px',width:'100%' }}>{item.name}</td>
+    </tr>
+  </>
+)) : null}
+              
+              </td>
+              </tr>
+        </tbody>
+      </table>
+                    </div>
+                    <div className='sub1-2'>
+                        <motion.div className='notifs' initial={{y:50}} animate={{y:0}} transition={{delay:0.2,duration:0.3}}>
+
+                        </motion.div>
+                        <motion.div className='notifs' initial={{y:50}} animate={{y:0}} transition={{delay:0.2,duration:0.3}}>
+
+                        </motion.div>
+                    </div>
                     
                 </div>
-                <div className='sub2'></div>
+                <div className='sub2'>
+                <Line data={data} options={options} />
+                </div>
             </motion.div>
         </div>
     )
