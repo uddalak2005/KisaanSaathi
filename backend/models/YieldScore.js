@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const yieldScoreSchema = new mongoose.Schema({
+    best_crop: [{
+        name: {
+            type: String
+        }
+    }],
     aadharNum: {
         type: Number,
         required: true,
@@ -23,7 +28,7 @@ const yieldScoreSchema = new mongoose.Schema({
             max: 100
         },
         predicted_yield : {
-            type: Number,
+            type: String,
             required: true
         }
     }],

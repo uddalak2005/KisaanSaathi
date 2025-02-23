@@ -47,7 +47,8 @@ const yieldScoreController = {
                     location: location,
                     soil_health : predictedScore.soil_health,
                     yield_category : predictedScore.yield_category,
-                    loan_amount : predictedScore.loan_amount
+                    loan_amount : predictedScore.loan_amount,
+                    best_crop : []
                 });
             }
 
@@ -55,8 +56,14 @@ const yieldScoreController = {
             yieldScore.crops.push({
                 name: cropName,
                 land: land,
-                score : predictedScore.score
+                score : predictedScore.score,
+                predicted_yield : predictedScore.predicted_yield
             });
+
+            predictedScore.best_crop.forEach(crop => {
+                yieldScore.best_crop.push({ name: crop });
+            })
+
             
             // Update score from prediction
             yieldScore.score = predictedScore;
@@ -66,10 +73,7 @@ const yieldScoreController = {
             res.status(200).json({
                 success: true,
                 data: {
-                    score : predictedScore,
-                    _id: savedScore._id,
-                    aadharNum: savedScore.aadharNum,
-                    crops: savedScore.crops
+                    savedScore : savedScore
                 }
             });
             

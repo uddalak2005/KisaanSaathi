@@ -13,10 +13,10 @@ const loanSchema = new mongoose.Schema({
         type: Number,
         required: true // duration in months
     },
-    borrower: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+    aadharNum: {
+        type: Number,
+        required: true,
+        ref: 'User'
     },
     status: {
         type: String,
@@ -28,5 +28,7 @@ const loanSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+loanSchema.index({ aadharNum: 1 });
 
 module.exports = mongoose.model('Loan', loanSchema);

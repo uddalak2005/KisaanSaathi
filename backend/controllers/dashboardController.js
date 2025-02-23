@@ -40,8 +40,7 @@ const dashboardController = {
                         userId: user.userId
                     },
                     yieldScore: yieldScore ? {
-                        score: yieldScore.score,
-                        crops: yieldScore.crops
+                        yieldScore
                     } : null,
                     loans: loans.map(loan => ({
                         amount: loan.amount,
