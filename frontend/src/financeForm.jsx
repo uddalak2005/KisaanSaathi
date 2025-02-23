@@ -3,6 +3,9 @@ import {db} from "./firebaseConfig"; // Ensure Firebase is properly initialized
 import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+const dotenv = require('dotenv');
+const path = require('path');
+
 
 export default function FinanceForm() {
   const [formData, setFormData] = useState({
@@ -22,7 +25,8 @@ export default function FinanceForm() {
     }
 });  
 
-const API_KEY = "AIzaSyCe9aY5nyzH0F_Tbk3vGsbX3kC418wVFtc"
+dotenv.config({path: path.join(__dirname,'.env')});
+const API_KEY = process.env.Gemini_api_key;
 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
 
 const [userData,setuserData] = useState();
