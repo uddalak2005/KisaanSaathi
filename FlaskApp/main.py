@@ -315,6 +315,32 @@ def predict2(c, d, a):
         print(f"Predicted Yield: {max_yield:.2f} Kg/ha (Highly Recommended Crop)")
         print(f"{'='*40}")
 
+    top_crops = []
+    crop_yields = []
+
+    for crop, column in base_crop_names.items():
+        ts_data = district_yield[['Year', column]].dropna()
+        ts_data.columns = ['ds', 'y']
+        ts_data['ds'] = pd.to_datetime(ts_data['ds'], format='%Y')
+
+        if len(ts_data) >= 5:
+            model = Prophet(yearly_seasonality=True, growth='flat')
+            model.fit(ts_data)
+            future = model.make_future_dataframe(periods=1, freq='YS')
+            forecast = model.predict(future)
+            predicted_yield = max(forecast.iloc[-1]['yhat'], 0)
+
+            crop_yields.append((crop, predicted_yield))
+
+    # Sort crops by predicted yield in descending order and get top 3
+    top_crops = sorted(crop_yields, key=lambda x: x[1], reverse=True)[:3]
+
+    # Convert to array format
+    top_crops_array = [crop for crop, yield_value in top_crops]
+
+    print(top_crops_array)
+
+
 
     import json
 
@@ -339,7 +365,7 @@ def predict2(c, d, a):
         "district": district_input,
         "predicted_yield": f"{round(predicted_yield, 2)} Kg/ha",
         "yield_category": yield_cat,
-        "best_crop": best_crop,
+        "best_crop": top_crops_array,
         "soil_health": soil_cat,
         "score": climate_score,
         "loan_amount": f"{float(loan_amount)*float(area)}",
