@@ -7,6 +7,9 @@ import os
 import matplotlib
 matplotlib.use("Agg")
 
+from flask_cors import CORS
+
+
 def get_soil_category(score):
     if score == 0:
         return "No Soil Health Data"
@@ -37,6 +40,7 @@ def calculate_climate_score(yield_cat, soil_cat):
     return int((score_map[yield_cat] * 0.6) + (score_map[soil_cat] * 0.4))
 
 app = Flask(__name__)
+CORS(app)
 
 UPLOAD_FOLDER = 'static'
 if not os.path.exists(UPLOAD_FOLDER):
@@ -311,20 +315,175 @@ def predict2(c, d, a):
         print(f"Predicted Yield: {max_yield:.2f} Kg/ha (Highly Recommended Crop)")
         print(f"{'='*40}")
 
+    top_crops = []
+    crop_yields = []
+
+    for crop, column in base_crop_names.items():
+        ts_data = district_yield[['Year', column]].dropna()
+        ts_data.columns = ['ds', 'y']
+        ts_data['ds'] = pd.to_datetime(ts_data['ds'], format='%Y')
+
+        if len(ts_data) >= 5:
+            model = Prophet(yearly_seasonality=True, growth='flat')
+            model.fit(ts_data)
+            future = model.make_future_dataframe(periods=1, freq='YS')
+            forecast = model.predict(future)
+            predicted_yield = max(forecast.iloc[-1]['yhat'], 0)
+
+            crop_yields.append((crop, predicted_yield))
+
+    # Sort crops by predicted yield in descending order and get top 3
+    top_crops = sorted(crop_yields, key=lambda x: x[1], reverse=True)[:3]
+
+    # Convert to array format
+    top_crops_array = [crop for crop, yield_value in top_crops]
+
+    print(top_crops_array)
+
+
+
+    import json
+
+    # Extracting data points from the original crop
+    ts_data = district_yield[['Year', yield_col]].dropna()
+    ts_data.columns = ['ds', 'y']
+    ts_data['ds'] = pd.to_datetime(ts_data['ds'], format='%Y')
+
+    ts_data_json = [{"Year": str(year.year), "Yield": yield_value} for year, yield_value in zip(ts_data['ds'], ts_data['y'])]
+
+    # Extracting data points for the best crop
+    best_crop_data = district_yield[['Year', base_crop_names[best_crop]]].dropna()
+    best_crop_data.columns = ['ds', 'y']
+    best_crop_data['ds'] = pd.to_datetime(best_crop_data['ds'], format='%Y')
+
+    best_crop_data_json = [{"Year": str(year.year), "Yield": yield_value} for year, yield_value in zip(best_crop_data['ds'], best_crop_data['y'])]
+
+   
 # 
     result = {
         "crop": crop_input,
         "district": district_input,
         "predicted_yield": f"{round(predicted_yield, 2)} Kg/ha",
         "yield_category": yield_cat,
-        # "best_crop": best_crop,
+        "best_crop": top_crops_array,
         "soil_health": soil_cat,
         "score": climate_score,
-        "loan_amount": f"{float(loan_amount)*float(area)}"
+        "loan_amount": f"{float(loan_amount)*float(area)}",
+        
     }
 
 
     return jsonify(result), 200
+@app.route('/api/map', methods=['GET'])
+def api_map():
+    crop_input = request.args.get('crop')
+    district_input = request.args.get('district')
+    area = request.args.get('land')
+
+    if not crop_input or not district_input:
+        return jsonify({"error": "Missing crop or district in request."}), 400
+
+    return map(crop_input, district_input, area)
+@app.route('/map', methods=['POST'])
+def map(c, d, a):
+    crop_input = c
+    district_input = d
+    area = a
+
+    if not crop_input or not district_input or crop_input not in base_crop_names:
+        return jsonify({"error": "Invalid input. Please enter a valid crop and district."}), 400
+
+    yield_col = base_crop_names[crop_input]
+    district_yield = yield_df[yield_df['Dist Name'] == district_input]
+    district_soil = soil_df[soil_df['Dist Name'] == district_input]
+
+    if district_yield.empty or district_soil.empty:
+        return jsonify({"error": "District data not found."}), 400
+
+    ts_data = district_yield[['Year', yield_col]].dropna()
+    ts_data.columns = ['ds', 'y']
+    ts_data['ds'] = pd.to_datetime(ts_data['ds'], format='%Y')
+
+    model = Prophet(yearly_seasonality=True, growth='flat')
+    model.fit(ts_data)
+
+    future = model.make_future_dataframe(periods=1, freq='YS')
+    forecast = model.predict(future)
+    predicted_yield = max(forecast.iloc[-1]['yhat'], 0)
+
+    if predicted_yield > 1000:
+        yield_cat = "Highly Recommended Crop"
+        color = "green"
+    elif predicted_yield > 500:
+        yield_cat = "Good Crop"
+        color = "yellow"
+    elif predicted_yield > 200:
+        yield_cat = "Poor Crop"
+        color = "orange"
+    else:
+        yield_cat = "Very Poor Crop"
+        color = "red"
+
+    soil_score = district_soil['SoilHealthScore'].values[0]
+    soil_cat = district_soil['Soil_Category'].values[0]
+    climate_score = calculate_climate_score(yield_cat, soil_cat)
+
+    # Calculate Loan Amount
+    loan_amount = calculate_loan(crop_input,predicted_yield, yield_cat, soil_cat, climate_score)
+# 
+
+    best_crop = None
+    max_yield = 0
+    for crop, column in base_crop_names.items():
+        ts_data = district_yield[['Year', column]].dropna()
+        ts_data.columns = ['ds', 'y']
+        ts_data['ds'] = pd.to_datetime(ts_data['ds'], format='%Y')
+        if len(ts_data) >= 5:
+            model = Prophet(yearly_seasonality=True, growth='flat')
+            model.fit(ts_data)
+            future = model.make_future_dataframe(periods=1, freq='YS')
+            forecast = model.predict(future)
+            predicted_yield = max(forecast.iloc[-1]['yhat'], 0)
+            if predicted_yield > max_yield:
+                max_yield = predicted_yield
+                best_crop = crop
+    if best_crop:
+        print(f"\n{'='*40}")
+        print(f"Maximum Yield Prediction for {district_input}:")
+        print(f"Best Crop: {best_crop}")
+        print(f"Predicted Yield: {max_yield:.2f} Kg/ha (Highly Recommended Crop)")
+        print(f"{'='*40}")
+
+
+    import json
+
+    # Extracting data points from the original crop
+    ts_data = district_yield[['Year', yield_col]].dropna()
+    ts_data.columns = ['ds', 'y']
+    ts_data['ds'] = pd.to_datetime(ts_data['ds'], format='%Y')
+
+    ts_data_json = [{"Year": str(year.year), "Yield": yield_value} for year, yield_value in zip(ts_data['ds'], ts_data['y'])]
+
+    # Extracting data points for the best crop
+    best_crop_data = district_yield[['Year', base_crop_names[best_crop]]].dropna()
+    best_crop_data.columns = ['ds', 'y']
+    best_crop_data['ds'] = pd.to_datetime(best_crop_data['ds'], format='%Y')
+
+    best_crop_data_json = [{"Year": str(year.year), "Yield": yield_value} for year, yield_value in zip(best_crop_data['ds'], best_crop_data['y'])]
+
+   
+#   
+    result = {
+        
+        "ts_data": ts_data_json,
+        "best_crop_data": best_crop_data_json
+        
+    }
+
+    # result.headers.add("Access-Control-Allow-Origin","*")
+    return jsonify(result), 200
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0' ,debug=True)
+    
