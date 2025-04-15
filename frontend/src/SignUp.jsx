@@ -3,7 +3,12 @@ import './styles/Sign.css'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+
+
 export default function SignUp() {
+
+  const navigate = useNavigate();
 
   const [secondForm, setSecondForm] = useState(false);
   const [selectedState, setSelectedState] = useState("");
@@ -138,21 +143,34 @@ export default function SignUp() {
   //   formData.location.district = district || "";
   // }
 
-  const handleSubmit = async() =>{
-    console.log(formData);
-    try{
-    axios.post('http://192.168.190.12:3000/api/auth/register', formData).then((res) => {
-      if(res.status === 200 || 201){
-        var token = res.data.token;
-        localStorage.setItem('token',token);
-        console.log(token);
-      }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await axios.post('http://localhost:3000/api/auth/register', formData);
+      
+      if (response.status === 201 || response.status === 200) {
+        const { token, user } = response.data;
 
-    })
-  }
-  catch(e){
-    console.log(e);
-  }}
+        console.log(user.aadharNum);
+        
+        // Store token and user data
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Show success message (optional)
+        alert('Registration successful!');
+        
+        // Redirect to dashboard or home page
+        navigate(`/dashboard/${user.aadharNum}`);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      
+      // Show error message to user
+      alert(error.response?.data?.message || 'Registration failed. Please try again.');
+    }
+  };
 
 
  
