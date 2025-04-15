@@ -8,7 +8,7 @@ export default function Landing() {
     <div className='Main_bg'>
         <div className='navbar'>
             <div className='logo'>
-                KisaanSathi
+                
             </div>
             <div className='links'>
                 <div className='Home' id='child'>Home</div>
@@ -18,7 +18,7 @@ export default function Landing() {
             </div>
             <div className='authButtons'>
                 <button className='in' onClick={() => {navigate("/SignIn")}} style={{zIndex:'2'}}>Sign in</button>
-                <button className='up' style={{zIndex:'2'}}>Sign up</button>
+                <button className='up' onClick={()=>{navigate("/SignUp")}} style={{zIndex:'2'}}>Sign up</button>
             </div>
         </div>
 
