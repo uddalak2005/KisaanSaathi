@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 
 const main = async () => {
     try {
-        await mongoose.connect("mongodb://localhost:27017/kisaan-saathi", {
+        await mongoose.connect("mongodb://localhost:27017/", {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });

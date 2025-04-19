@@ -72,11 +72,11 @@ const authController = {
             console.log('6. Saved User:', savedUser);
 
             // Generate token
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-                expiresIn: '30d'
-            });
+            // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            //     expiresIn: '30d'
+            // });
 
-            console.log('7. Generated Token:', token ? 'Token generated' : 'Token generation failed');
+            // console.log('7. Generated Token:', token ? 'Token generated' : 'Token generation failed');
 
             res.status(201).json({
                 success: true,

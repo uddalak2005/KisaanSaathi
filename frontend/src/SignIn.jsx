@@ -69,7 +69,7 @@ export default function SignIn() {
   const handleSubmit = async() =>{
     console.log(formData);
     try{
-    axios.post('http://192.168.190.12:3000/api/auth/login', formData).then((res) => {
+    axios.post('http://localhost:3000/api/auth/login', formData).then((res) => {
       if(res.status === 200 || 201){
         var token = res.data.token;
         localStorage.setItem('token',token);

@@ -333,11 +333,11 @@ if(!graphData){
                         </div>
                 </div>
                 <div className='score-graph' style={{overflowY:'scroll'}}>
-                {userDat ? userDat.dashboardData ? userDat.dashboardData.yieldScore.yieldScore.crops.map((item,index) => (
+                {userDat ? userDat.dashboardData ? userDat.dashboardData.yieldScore.yieldScore? userDat.dashboardData.yieldScore.yieldScore.crops.map((item,index) => (
                     <div className='add_scores' key={item.name}>
                     <h1 className='crop_name_for_score'>{item.name} :</h1>
                     <h1 className='climate-score' style={{color:'green',position:'absolute',fontSize:'1rem',right:'10%'}}>{item.score}</h1>
-                    </div>)): "" : ""}
+                    </div>)): "" : "":""}
             
                 </div>
 

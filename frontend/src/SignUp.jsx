@@ -3,6 +3,7 @@ import './styles/Sign.css'
 import { useState } from 'react'
 import { useEffect } from 'react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 export default function SignUp() {
 
   const [secondForm, setSecondForm] = useState(false);
@@ -101,7 +102,7 @@ export default function SignUp() {
     );
   };
 
-
+  const navigate = useNavigate();
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if(name === 'state'){
@@ -141,14 +142,16 @@ export default function SignUp() {
   const handleSubmit = async() =>{
     console.log(formData);
     try{
-    axios.post('http://192.168.190.12:3000/api/auth/register', formData).then((res) => {
+    axios.post('http://localhost:3000/api/auth/register', formData).then((res) => {
       if(res.status === 200 || 201){
         var token = res.data.token;
         localStorage.setItem('token',token);
         console.log(token);
       }
 
+
     })
+    navigate("/");
   }
   catch(e){
     console.log(e);

@@ -8,7 +8,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kisaan-saathi';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/';
 
 mongoose.connect(MONGO_URI)
     .then(() => {
