@@ -120,7 +120,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="dash-page">
+    <div className="dash-page" style={{overflow : "hidden"}}>
       <motion.div
         className="navbar-dash"
         initial={{ y: -100 }}
@@ -281,7 +281,8 @@ export default function Dashboard() {
                 className="areaTake"
                 placeholder="Enter field area(hector)"
               ></input>
-              <button className="submit-crop-form" onClick={handleAddCrop}>Submit</button>
+              {/* <button className="submit-crop-form" onClick={handleAddCrop}>Submit</button> */}
+              <button className="submit-crop-form" >Submit</button>
             </div>
           </div>
           <div className="score-graph">
