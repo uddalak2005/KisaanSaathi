@@ -11,10 +11,15 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     phone: {
-        type: Number,
-        unique: true,
+        type: String,  // Changed from Number to String
         required: true,
         trim: true,
+        validate: {
+            validator: function(v) {
+                return /^\d{10}$/.test(v);  // Validates 10-digit phone numbers
+            },
+            message: props => `${props.value} is not a valid phone number!`
+        }
     },
     password: {
         type: String,
@@ -48,8 +53,8 @@ const userSchema = new mongoose.Schema({
     },
     aadharNum: {
         type: Number,
-        required: true,   // Changed to required
-        unique: true,
+        required: true,   
+        // Remove unique: true from here
         validate: {
             validator: function(v) {
                 return /^\d{12}$/.test(v.toString());

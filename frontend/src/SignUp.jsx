@@ -4,7 +4,14 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 59c6d0b3f854b674ed8f2cfc05a169a610a3f162
 export default function SignUp() {
+
+  const navigate = useNavigate();
 
   const [secondForm, setSecondForm] = useState(false);
   const [selectedState, setSelectedState] = useState("");
@@ -139,6 +146,7 @@ export default function SignUp() {
   //   formData.location.district = district || "";
   // }
 
+<<<<<<< HEAD
   const handleSubmit = async() =>{
     console.log(formData);
     try{
@@ -156,6 +164,36 @@ export default function SignUp() {
   catch(e){
     console.log(e);
   }}
+=======
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const response = await axios.post('http://localhost:3000/api/auth/register', formData);
+      
+      if (response.status === 201 || response.status === 200) {
+        const { token, user } = response.data;
+
+        console.log(user.aadharNum);
+        
+        // Store token and user data
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Show success message (optional)
+        alert('Registration successful!');
+        
+        // Redirect to dashboard or home page
+        navigate(`/dashboard/${user.aadharNum}`);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      
+      // Show error message to user
+      alert(error.response?.data?.message || 'Registration failed. Please try again.');
+    }
+  };
+>>>>>>> 59c6d0b3f854b674ed8f2cfc05a169a610a3f162
 
 
  

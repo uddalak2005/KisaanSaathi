@@ -12,21 +12,14 @@ const authController = {
                 middleName,
                 location,
                 aadharNum
-            } = req.body; //req.body
+            } = req.body;
 
-            console.log('1. Received Data:', { 
-                phone, firstName, lastName, location, aadharNum 
+            console.log('1. Received Data:', {
+                phone, firstName, lastName, location, aadharNum
             });
+            
             // Check if user exists
             const userExists = await User.findOne({ phone });
-
-            console.log('1. Request type:', req.method);
-            console.log('1a. Content-Type:', req.headers['content-type']);
-            console.log('1b. Received Data:', { 
-                phone, firstName, lastName, location, aadharNum 
-            });
-
-
 
             if (userExists) {
                 return res.status(400).json({
@@ -44,10 +37,8 @@ const authController = {
                 });
             }
 
-
             // Create user ID
             const userId = 'KS' + Date.now().toString().slice(-6);
-            console.log('4. Generated UserId:', userId);
 
             // Create new user with all fields
             const user = new User({
@@ -62,39 +53,46 @@ const authController = {
                     district: location.district
                 },
                 aadharNum,
-                isProfileComplete: true // Since all data is provided
+                isProfileComplete: true
             });
 
-            console.log('5. Created User Object:', user);
+            
 
+            // Save the user
             const savedUser = await user.save();
 
-            console.log('6. Saved User:', savedUser);
-
             // Generate token
+<<<<<<< HEAD
             // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
             //     expiresIn: '30d'
             // });
 
             // console.log('7. Generated Token:', token ? 'Token generated' : 'Token generation failed');
 
+=======
+            const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, {
+                expiresIn: '30d'
+            });
+
+>>>>>>> 59c6d0b3f854b674ed8f2cfc05a169a610a3f162
             res.status(201).json({
                 success: true,
                 token,
                 user: {
-                    userId: user.userId,
-                    phone: user.phone,
-                    name: `${user.firstName} ${user.middleName ? user.middleName + ' ' : ''}${user.lastName}`,
-                    location: user.location,
-                    aadharNum: user.aadharNum,
+                    userId: savedUser.userId,
+                    phone: savedUser.phone,
+                    name: `${savedUser.firstName} ${savedUser.middleName ? savedUser.middleName + ' ' : ''}${savedUser.lastName}`,
+                    location: savedUser.location,
+                    aadharNum: savedUser.aadharNum,
                     isProfileComplete: true
                 }
             });
         } catch (error) {
+            console.error('Registration error:', error);
             res.status(500).json({
                 success: false,
                 message: error.message,
-                details: error.errors // MongoDB validation errors
+                details: error.stack
             });
         }
     },
@@ -143,7 +141,6 @@ const authController = {
         }
     },
 
-    // Add this to your existing authController object
     verifyToken: async (req, res) => {
         try {
             // User will be already attached by protect middleware
