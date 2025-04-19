@@ -83,13 +83,8 @@ export default function SignIn() {
         setTimeout(() => {
           console.log("This runs after 1 second.");
       }, 1500);
-<<<<<<< HEAD
-      
-        navigate(`/dashboard/${res.data.user.aadharNum}`);
-=======
 
         navigate(`/Dashboard/${aadharNum}`);
->>>>>>> 55bfdf44811369b3ef94324b1cb17537396c49cc
       }
 
     })
