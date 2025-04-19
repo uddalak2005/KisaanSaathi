@@ -4,11 +4,7 @@ import { useState } from 'react'
 import { useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 59c6d0b3f854b674ed8f2cfc05a169a610a3f162
 export default function SignUp() {
 
   const navigate = useNavigate();
@@ -108,8 +104,6 @@ export default function SignUp() {
       </div>
     );
   };
-
-  const navigate = useNavigate();
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if(name === 'state'){
@@ -146,25 +140,6 @@ export default function SignUp() {
   //   formData.location.district = district || "";
   // }
 
-<<<<<<< HEAD
-  const handleSubmit = async() =>{
-    console.log(formData);
-    try{
-    axios.post('http://localhost:3000/api/auth/register', formData).then((res) => {
-      if(res.status === 200 || 201){
-        var token = res.data.token;
-        localStorage.setItem('token',token);
-        console.log(token);
-      }
-
-
-    })
-    navigate("/");
-  }
-  catch(e){
-    console.log(e);
-  }}
-=======
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -193,7 +168,6 @@ export default function SignUp() {
       alert(error.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
->>>>>>> 59c6d0b3f854b674ed8f2cfc05a169a610a3f162
 
 
  
