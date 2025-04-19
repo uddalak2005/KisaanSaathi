@@ -1,0 +1,97 @@
+.container {
+    max-width: 90%;
+    margin: 0 auto;
+    margin-top: 50px;
+    padding: 2%;
+    background: #f9f9f9;
+    border-radius: 2%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    top: 10%;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 2%;
+  }
+  
+  .header-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .header-subtitle {
+    font-size: 1rem;
+    color: #666;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 2%;
+    align-items: center;
+  }
+  
+  .section {
+    width: 100%;
+    padding: 2%;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2%;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .form-group {
+    flex: 1 1 48%;
+    min-width: 250px;
+  }
+  
+  .input,
+  .select {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+  
+  
+  .submit-button {
+    width: 100%;
+    padding: 2.5%;
+    padding-left: 1%;
+    padding-right: 1%;
+    font-size: 1.2rem;
+    background-color: #28a745;
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+  }
+  /* .financeformcontainer{ 
+    height: 100%;
+    width: 100dvw;
+    display: flex;
+    justify-content: center;
+  } */
+  @media (min-width: 768px) {
+    .container {
+      max-width: 600px;
+    }
+  }
+  
