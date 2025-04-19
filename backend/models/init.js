@@ -33,7 +33,7 @@ const main = async () => {
         // Sample User
         const user = new User({
             userId,  // Dynamic userId
-            phone: '+919876543210',
+            phone: 9876543210,
             password: hashedPassword,
             firstName: 'Ram',
             middleName: 'Kumar',
