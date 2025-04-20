@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Inria+Serif:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+*{
+font-family: Inter;
+margin: 0;
+padding: 0;
+}
+.Main_bg{
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('../assets/New folder/depositphotos_82948698-stock-photo-combine-harvester.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    overflow-x: hidden;
+
+}
+.navbar {
+    position: absolute;
+    width: 100%;
+    top: 0%;
+    height: 10%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+    background-color: #f8f9fa; /* Light background */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.links{
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    left: 20%;
+    display: flex;
+    justify-content: space-between; /* Evenly spaces the divs */
+    align-items: center; /* Aligns them vertically */
+    gap: 10px; /* Space between divs */
+    padding: 20px;
+}
+#child{
+    flex: 1; /* Makes all divs take equal width */
+    max-width: 25%; /* Each div takes up 25% of the parent */
+    padding: 20px;
+    text-align: center;
+    z-index: 2;
+    font-size: 1.2rem;
+}
+#child:hover{
+    cursor: pointer;
+    color: rgb(6, 165, 6);
+    z-index: 2;
+}
+.authButtons{
+    position: absolute;
+    width: 25%;
+    right: 2%;
+    display: flex;
+    height: 50%;
+}
+.Main_content{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    
+}
+.hero{
+    position: absolute;
+    width: 40%;
+    height: 60%;
+    top: 25%;
+    display: flex;
+    background-color: rgba(86, 91, 91, 0.379);
+    left: 10%;
+    border-radius: 20px;
+}
+.hero h1{
+    position: absolute;
+    font-size: 3rem;
+    color: #ffffff;
+    left: 10%;
+    top: 7%;
+    text-align: left;
+}
+.Learnmore{
+    position: absolute;
+    width: 25%;
+    height: 12%;
+    border: 2px solid white;
+    border-radius: 20px;
+    background-color: rgba(0,0,0,0);
+    bottom: 15%;
+    left: 10%;
+    color: white ;
+    font-size: 1rem;
+}
+.hero_text{
+    position: absolute;
+    color: white ;
+    width: 80%;
+    left: 10%;
+    top: 38%;
+    font-size: 1.2rem;
+    font-family: Inter;
+    font-weight: 500;
+    text-align: left;
+    line-height: 1.5;
+}
+.in{
+    position: absolute;
+    width: 30%;
+    height: 80%;
+    right: 45%;
+    background-color: rgb(6, 165, 6);
+    font-size: 1rem;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 20px;
+}
+.in:hover{
+    background-color: rgba(0, 0, 0, 0.1);
+    color: rgb(6, 165, 6);
+    cursor: pointer;
+}
+.up{
+    position: absolute;
+    width: 30%;
+    height: 80%;
+    right: 10%;
+    background-color: rgb(6, 165, 6);
+    font-size: 1rem;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 20px;
+}
+.up:hover{
+    background-color: rgba(0, 0, 0, 0.1);
+    color: black;
+    cursor: pointer;
+}
+.Home{
+    background-color: none;
+    border: none;
+    color: rgb(6, 165, 6);
+}
+.logo{
+    position: absolute;
+    width: 5%;
+    height: 80%;
+    top:10%;
+    background-color: blue;
+    left: 5%;
+    background-image: url("../assets/WhatsApp Image 2025-02-22 at 1.28.10 PM.jpeg");
+    background-position: center;
+    background-size: contain;
+
+}

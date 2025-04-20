@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Yield & Loan Prediction</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .result-box {
+            background: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .highlight {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .good { background-color: #28a745; color: white; }
+        .average { background-color: #ffc107; color: black; }
+        .poor { background-color: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center text-primary">🌾 Crop Yield & Loan Prediction 🌾</h2>
+        <p class="text-center text-muted">Enter your details below to get an estimate.</p>
+        
+        <form action="/predict" method="post" class="mt-4 border p-4 bg-white shadow-sm rounded">
+            <div class="mb-3">
+                <label for="crop" class="form-label">Select Crop:</label>
+                <select name="crop" id="crop" class="form-control" required>
+                    {% for crop in crops %}
+                        <option value="{{ crop }}">{{ crop }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="district" class="form-label">Enter District:</label>
+                <input type="text" name="district" id="district" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="land_area" class="form-label">Land Area (in hectares):</label>
+                <input type="number" name="land_area" id="land_area" class="form-control" step="0.1" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Predict</button>
+        </form>
+
+        {% if result %}
+        <div class="mt-5 result-box">
+            <h4 class="text-center text-success">📊 Prediction Results 📊</h4>
+            <hr>
+            <p><strong>Crop:</strong> {{ result.crop }}</p>
+            <p><strong>District:</strong> {{ result.district }}</p>
+            <p><strong>Predicted Yield:</strong> {{ result.predicted_yield }} 
+                <span class="highlight {% if result.yield_category == 'Highly Recommended Crop' %}good
+                                         {% elif result.yield_category == 'Good Crop' %}average
+                                         {% else %}poor{% endif %}">
+                    {{ result.yield_cat }}
+                </span>
+            </p>
+            <p><strong>Soil Health:</strong> {{ result.soil_health }}</p>
+            <p><strong>Climate Score:</strong> {{ result.climate_score }}/100</p>
+            <p><strong>Predicted Loan Amount:</strong> <span class="text-primary fw-bold">₹{{ result.loan_amount }}</span></p>
+            <p><strong>Suitable Crop For Your area:</strong><span style="color: green; font-weight:bold;"> {{ result.best_crop }} </span></p>
+            {% if image_path %}
+                <img src="{{ image_path }}" alt="Forecast Plot" class="img-fluid mt-3 rounded">
+                
+            {% endif %}
+            <br>
+            {% if image_path2 %}
+                <img src="{{ image_path2 }}" alt="Forecast Plot" class="img-fluid mt-3 rounded">
+                
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
